@@ -8,6 +8,7 @@ namespace WslcDesktop.Pages;
 public sealed partial class ContainersPage : Page
 {
     private bool _loaded;
+    private IReadOnlyList<ContainerInstance> _allContainers = [];
 
     public ContainersPage()
     {
@@ -28,6 +29,26 @@ public sealed partial class ContainersPage : Page
     private async void RefreshButton_Click(object sender, RoutedEventArgs e)
     {
         await LoadContainersAsync();
+    }
+
+    private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        {
+            ApplyFilters();
+        }
+    }
+
+    private void OnlyRunningToggle_Toggled(object sender, RoutedEventArgs e) => ApplyFilters();
+
+    private void ContainersList_ItemClick(object sender, ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is not ContainerInstance container)
+        {
+            return;
+        }
+
+        Frame.Navigate(typeof(ContainerDetailsPage), container);
     }
 
     private async void StartStopContainerButton_Click(object sender, RoutedEventArgs e)
@@ -88,21 +109,13 @@ public sealed partial class ContainersPage : Page
 
         try
         {
-            var containers = await ContainerCliService.ListContainersAsync();
-            ContainersList.ItemsSource = containers;
-
-            if (containers.Count == 0)
-            {
-                StatusText.Text = "No containers found.";
-                StatusText.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                ContainersList.Visibility = Visibility.Visible;
-            }
+            _allContainers = await ContainerCliService.ListContainersAsync();
+            ApplyFilters();
         }
         catch (Exception ex)
         {
+            _allContainers = [];
+            ContainersList.ItemsSource = null;
             StatusText.Text = $"Error listing containers: {ex.Message}";
             StatusText.Visibility = Visibility.Visible;
         }
@@ -112,4 +125,58 @@ public sealed partial class ContainersPage : Page
             LoadingRing.Visibility = Visibility.Collapsed;
         }
     }
+
+    private void ApplyFilters()
+    {
+        var query = SearchBox.Text?.Trim() ?? string.Empty;
+        var onlyRunning = OnlyRunningToggle.IsOn;
+
+        IEnumerable<ContainerInstance> filtered = _allContainers;
+
+        if (onlyRunning)
+        {
+            filtered = filtered.Where(container => container.IsRunning);
+        }
+
+        if (!string.IsNullOrEmpty(query))
+        {
+            filtered = filtered.Where(container => MatchesSearch(container, query));
+        }
+
+        var result = filtered.ToList();
+        ContainersList.ItemsSource = result;
+
+        if (_allContainers.Count == 0)
+        {
+            StatusText.Text = "No containers found.";
+            StatusText.Visibility = Visibility.Visible;
+            ContainersList.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        if (result.Count == 0)
+        {
+            StatusText.Text = "No containers match the current filters.";
+            StatusText.Visibility = Visibility.Visible;
+            ContainersList.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        StatusText.Visibility = Visibility.Collapsed;
+        ContainersList.Visibility = Visibility.Visible;
+    }
+
+    private static bool MatchesSearch(ContainerInstance container, string query)
+    {
+        return Contains(container.Id, query)
+            || Contains(container.ShortId, query)
+            || Contains(container.Name, query)
+            || Contains(container.Image, query)
+            || Contains(container.StatusDisplay, query)
+            || Contains(container.PortsDisplay, query);
+    }
+
+    private static bool Contains(string? value, string query) =>
+        !string.IsNullOrEmpty(value)
+        && value.Contains(query, StringComparison.OrdinalIgnoreCase);
 }

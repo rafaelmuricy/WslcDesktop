@@ -68,6 +68,71 @@ public static class ContainerCliService
         cancellationToken.ThrowIfCancellationRequested();
     }
 
+    public static async Task RestartContainerAsync(string containerId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerId);
+        await StopContainerAsync(containerId, cancellationToken);
+        await StartContainerAsync(containerId, cancellationToken);
+    }
+
+    public static async Task<string> GetLogsAsync(
+        string containerId,
+        int? tail = 200,
+        bool timestamps = true,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerId);
+
+        var args = new List<string> { "logs" };
+        if (timestamps)
+        {
+            args.Add("-t");
+        }
+
+        if (tail is > 0)
+        {
+            args.Add("-n");
+            args.Add(tail.Value.ToString());
+        }
+
+        args.Add(containerId);
+
+        var output = await RunAsync([.. args], workingDirectory: null);
+        cancellationToken.ThrowIfCancellationRequested();
+        return output;
+    }
+
+    public static async Task<string> InspectAsync(
+        string objectId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(objectId);
+        var output = await RunAsync("inspect", objectId);
+        cancellationToken.ThrowIfCancellationRequested();
+        return output;
+    }
+
+    public static async Task<ContainerStats?> GetContainerStatsAsync(
+        string containerId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerId);
+
+        var output = await RunAsync("stats", "--format", "json", containerId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            return null;
+        }
+
+        var stats = JsonSerializer.Deserialize<List<ContainerStats>>(output, JsonOptions);
+        return stats?.FirstOrDefault(item =>
+            item.Id.StartsWith(containerId, StringComparison.OrdinalIgnoreCase) ||
+            containerId.StartsWith(item.Id, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(item.Name, containerId, StringComparison.OrdinalIgnoreCase));
+    }
+
     public static async Task<IReadOnlyList<string>> GetExposedPortsAsync(
         string imageId,
         CancellationToken cancellationToken = default)

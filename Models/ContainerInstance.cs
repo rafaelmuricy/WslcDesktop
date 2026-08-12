@@ -58,6 +58,28 @@ public sealed class ContainerInstance
         }
     }
 
+    public string DetailsStatusDisplay
+    {
+        get
+        {
+            var stateName = State switch
+            {
+                1 => "Created",
+                2 => "Running",
+                3 => "Exited",
+                4 => "Paused",
+                _ => $"State {State}"
+            };
+
+            if (StateChangedAt <= 0)
+            {
+                return stateName;
+            }
+
+            return $"{stateName} ({FormatRelativeTime(StateChangedAt)})";
+        }
+    }
+
     public string PortsDisplay
     {
         get
@@ -71,8 +93,11 @@ public sealed class ContainerInstance
         }
     }
 
-    public bool IsRunning =>
-        StatusDisplay.Contains("running", StringComparison.OrdinalIgnoreCase);
+    public bool IsRunning => State == 2;
+
+    public double RunningDotOpacity => IsRunning ? 1 : 0;
+
+    public double StoppedDotOpacity => IsRunning ? 0 : 1;
 
     public string StartStopGlyph => IsRunning ? "\uE71A" : "\uE768";
 

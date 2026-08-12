@@ -10,6 +10,7 @@ namespace WslcDesktop.Pages;
 public sealed partial class ImagesPage : Page
 {
     private bool _loaded;
+    private IReadOnlyList<ContainerImage> _allImages = [];
 
     public ImagesPage()
     {
@@ -30,6 +31,14 @@ public sealed partial class ImagesPage : Page
     private async void RefreshButton_Click(object sender, RoutedEventArgs e)
     {
         await LoadImagesAsync();
+    }
+
+    private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        {
+            ApplyFilters();
+        }
     }
 
     private async void AddImageButton_Click(object sender, RoutedEventArgs e)
@@ -141,21 +150,13 @@ public sealed partial class ImagesPage : Page
 
         try
         {
-            var images = await ContainerCliService.ListImagesAsync();
-            ImagesList.ItemsSource = images;
-
-            if (images.Count == 0)
-            {
-                StatusText.Text = "No images found.";
-                StatusText.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                ImagesList.Visibility = Visibility.Visible;
-            }
+            _allImages = await ContainerCliService.ListImagesAsync();
+            ApplyFilters();
         }
         catch (Exception ex)
         {
+            _allImages = [];
+            ImagesList.ItemsSource = null;
             StatusText.Text = $"Error listing images: {ex.Message}";
             StatusText.Visibility = Visibility.Visible;
         }
@@ -165,4 +166,52 @@ public sealed partial class ImagesPage : Page
             LoadingRing.Visibility = Visibility.Collapsed;
         }
     }
+
+    private void ApplyFilters()
+    {
+        var query = SearchBox.Text?.Trim() ?? string.Empty;
+
+        IEnumerable<ContainerImage> filtered = _allImages;
+
+        if (!string.IsNullOrEmpty(query))
+        {
+            filtered = filtered.Where(image => MatchesSearch(image, query));
+        }
+
+        var result = filtered.ToList();
+        ImagesList.ItemsSource = result;
+
+        if (_allImages.Count == 0)
+        {
+            StatusText.Text = "No images found.";
+            StatusText.Visibility = Visibility.Visible;
+            ImagesList.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        if (result.Count == 0)
+        {
+            StatusText.Text = "No images match the current filters.";
+            StatusText.Visibility = Visibility.Visible;
+            ImagesList.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        StatusText.Visibility = Visibility.Collapsed;
+        ImagesList.Visibility = Visibility.Visible;
+    }
+
+    private static bool MatchesSearch(ContainerImage image, string query)
+    {
+        return Contains(image.Name, query)
+            || Contains(image.Tag, query)
+            || Contains(image.Id, query)
+            || Contains(image.ShortId, query)
+            || Contains(image.FullName, query)
+            || Contains(image.SizeDisplay, query);
+    }
+
+    private static bool Contains(string? value, string query) =>
+        !string.IsNullOrEmpty(value)
+        && value.Contains(query, StringComparison.OrdinalIgnoreCase);
 }

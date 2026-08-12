@@ -25,11 +25,31 @@
                 Text="List of WSLC containers." />
         </StackPanel>
 
-        <StackPanel
-            Grid.Row="1"
-            Orientation="Horizontal"
-            Spacing="8">
+        <Grid Grid.Row="1" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MaxWidth="320" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <AutoSuggestBox
+                x:Name="SearchBox"
+                MinHeight="36"
+                PlaceholderText="Search"
+                QueryIcon="Find"
+                TextChanged="SearchBox_TextChanged" />
+
+            <ToggleSwitch
+                x:Name="OnlyRunningToggle"
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                OffContent="Only running"
+                OnContent="Only running"
+                Toggled="OnlyRunningToggle_Toggled" />
+
             <Button
+                Grid.Column="3"
                 Width="40"
                 Height="36"
                 Click="RefreshButton_Click"
@@ -37,7 +57,7 @@
                 ToolTipService.ToolTip="Refresh">
                 <FontIcon FontSize="16" Glyph="&#xE72C;" />
             </Button>
-        </StackPanel>
+        </Grid>
 
         <Grid Grid.Row="2">
             <ProgressRing
@@ -58,12 +78,14 @@
 
             <ListView
                 x:Name="ContainersList"
-                IsItemClickEnabled="False"
+                IsItemClickEnabled="True"
+                ItemClick="ContainersList_ItemClick"
                 SelectionMode="None"
                 Visibility="Collapsed">
                 <ListView.Header>
                     <Grid Padding="12,8" ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" MinWidth="16" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="1.5*" />
                             <ColumnDefinition Width="2*" />
@@ -72,19 +94,51 @@
                             <ColumnDefinition Width="2*" />
                             <ColumnDefinition Width="Auto" MinWidth="132" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock FontWeight="SemiBold" Text="CONTAINER ID" />
-                        <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="NAME" />
-                        <TextBlock Grid.Column="2" FontWeight="SemiBold" Text="IMAGE" />
-                        <TextBlock Grid.Column="3" FontWeight="SemiBold" Text="CREATED" />
-                        <TextBlock Grid.Column="4" FontWeight="SemiBold" Text="STATUS" />
-                        <TextBlock Grid.Column="5" FontWeight="SemiBold" Text="PORTS" />
-                        <TextBlock Grid.Column="6" FontWeight="SemiBold" Text="ACTIONS" />
+                        <Border
+                            Width="12"
+                            ToolTipService.ToolTip="Container status" />
+                        <TextBlock
+                            Grid.Column="1"
+                            FontWeight="SemiBold"
+                            Text="CONTAINER ID"
+                            ToolTipService.ToolTip="Unique container identifier" />
+                        <TextBlock
+                            Grid.Column="2"
+                            FontWeight="SemiBold"
+                            Text="NAME"
+                            ToolTipService.ToolTip="Container name" />
+                        <TextBlock
+                            Grid.Column="3"
+                            FontWeight="SemiBold"
+                            Text="IMAGE"
+                            ToolTipService.ToolTip="Image used by the container" />
+                        <TextBlock
+                            Grid.Column="4"
+                            FontWeight="SemiBold"
+                            Text="CREATED"
+                            ToolTipService.ToolTip="When the container was created" />
+                        <TextBlock
+                            Grid.Column="5"
+                            FontWeight="SemiBold"
+                            Text="STATUS"
+                            ToolTipService.ToolTip="Current container status" />
+                        <TextBlock
+                            Grid.Column="6"
+                            FontWeight="SemiBold"
+                            Text="PORTS"
+                            ToolTipService.ToolTip="Published port mappings" />
+                        <TextBlock
+                            Grid.Column="7"
+                            FontWeight="SemiBold"
+                            Text="ACTIONS"
+                            ToolTipService.ToolTip="Available actions" />
                     </Grid>
                 </ListView.Header>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:ContainerInstance">
                         <Grid Padding="0,2" ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="16" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="1.5*" />
                                 <ColumnDefinition Width="2*" />
@@ -93,37 +147,62 @@
                                 <ColumnDefinition Width="2*" />
                                 <ColumnDefinition Width="Auto" MinWidth="132" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock
+                            <Grid
+                                Width="12"
+                                Height="12"
                                 VerticalAlignment="Center"
-                                FontFamily="Consolas"
-                                Text="{x:Bind ShortId}" />
+                                ToolTipService.ToolTip="{x:Bind StatusDisplay}">
+                                <Ellipse
+                                    Width="10"
+                                    Height="10"
+                                    Fill="#22C55E"
+                                    Opacity="{x:Bind RunningDotOpacity}" />
+                                <Ellipse
+                                    Width="10"
+                                    Height="10"
+                                    Fill="Transparent"
+                                    Opacity="{x:Bind StoppedDotOpacity}"
+                                    Stroke="{ThemeResource TextFillColorSecondaryBrush}"
+                                    StrokeThickness="1.5" />
+                            </Grid>
                             <TextBlock
                                 Grid.Column="1"
                                 VerticalAlignment="Center"
-                                Text="{x:Bind Name}"
-                                TextTrimming="CharacterEllipsis" />
+                                FontFamily="Consolas"
+                                Text="{x:Bind ShortId}"
+                                ToolTipService.ToolTip="{x:Bind Id}" />
                             <TextBlock
                                 Grid.Column="2"
                                 VerticalAlignment="Center"
-                                Text="{x:Bind Image}"
-                                TextTrimming="CharacterEllipsis" />
+                                Text="{x:Bind Name}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTipService.ToolTip="{x:Bind Name}" />
                             <TextBlock
                                 Grid.Column="3"
                                 VerticalAlignment="Center"
-                                Text="{x:Bind CreatedDisplay}"
-                                TextTrimming="CharacterEllipsis" />
+                                Text="{x:Bind Image}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTipService.ToolTip="{x:Bind Image}" />
                             <TextBlock
                                 Grid.Column="4"
                                 VerticalAlignment="Center"
-                                Text="{x:Bind StatusDisplay}"
-                                TextTrimming="CharacterEllipsis" />
+                                Text="{x:Bind CreatedDisplay}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTipService.ToolTip="{x:Bind CreatedDisplay}" />
                             <TextBlock
                                 Grid.Column="5"
                                 VerticalAlignment="Center"
-                                Text="{x:Bind PortsDisplay}"
-                                TextTrimming="CharacterEllipsis" />
-                            <StackPanel
+                                Text="{x:Bind StatusDisplay}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTipService.ToolTip="{x:Bind StatusDisplay}" />
+                            <TextBlock
                                 Grid.Column="6"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind PortsDisplay}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTipService.ToolTip="{x:Bind PortsDisplay}" />
+                            <StackPanel
+                                Grid.Column="7"
                                 Orientation="Horizontal"
                                 Spacing="4">
                                 <Button

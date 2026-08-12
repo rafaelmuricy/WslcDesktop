@@ -6,10 +6,11 @@ It's supposed to be the Front end for the WSL containers.
 
 ## Features
 
-- List local container images
+- List local containers and images
 - Build images from a `Dockerfile` or `Containerfile`
 - Run containers with ports, volumes, and environment variables
 - Delete images
+- See container details
 
 ## Requirements
 
@@ -29,7 +30,3 @@ dotnet run
 - C# / .NET 10
 - WinUI 3
 - Windows App SDK
-
-## Disclaimer
-
-This project is like 95% vibe coded (including this README), use it at your own risk.
