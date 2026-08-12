@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="WslcDesktop.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:WslcDesktop"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <NavigationView
+        x:Name="NavView"
+        IsBackButtonVisible="Collapsed"
+        IsSettingsVisible="False"
+        OpenPaneLength="220"
+        PaneDisplayMode="Left"
+        SelectedItem="{x:Bind ImagesNavItem, Mode=OneTime}"
+        SelectionChanged="NavView_SelectionChanged">
+        <NavigationView.MenuItems>
+            <NavigationViewItem
+                x:Name="ImagesNavItem"
+                Content="Images"
+                Tag="Images">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8B9;" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem
+                x:Name="ContainersNavItem"
+                Content="Containers"
+                Tag="Containers">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE7B8;" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </NavigationView.MenuItems>
+
+        <Frame x:Name="ContentFrame" />
+    </NavigationView>
+</Page>

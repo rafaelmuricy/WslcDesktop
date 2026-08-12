@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "WslcDesktop",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/WslcDesktop.csproj"
+        },
+        {
+            "name": "WslcDesktop (coreclr)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/bin/Debug/net10.0-windows10.0.26100.0/win-x64/WslcDesktop.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "WslcDesktop (Attach)",
+            "type": "coreclr",
+            "request": "attach"
+        }
+    ]
+}
