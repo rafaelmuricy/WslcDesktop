@@ -26,10 +26,45 @@ public static class ContainerCliService
         return images ?? [];
     }
 
+    public static async Task<IReadOnlyList<ContainerInstance>> ListContainersAsync(CancellationToken cancellationToken = default)
+    {
+        var output = await RunAsync("list", "-a", "--format", "json");
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            return [];
+        }
+
+        var containers = JsonSerializer.Deserialize<List<ContainerInstance>>(output, JsonOptions);
+        return containers ?? [];
+    }
+
     public static async Task DeleteImageAsync(string imageId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(imageId);
         await RunAsync("image", "delete", imageId);
+        cancellationToken.ThrowIfCancellationRequested();
+    }
+
+    public static async Task StartContainerAsync(string containerId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerId);
+        await RunAsync("start", containerId);
+        cancellationToken.ThrowIfCancellationRequested();
+    }
+
+    public static async Task StopContainerAsync(string containerId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerId);
+        await RunAsync("stop", containerId);
+        cancellationToken.ThrowIfCancellationRequested();
+    }
+
+    public static async Task DeleteContainerAsync(string containerId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerId);
+        await RunAsync("delete", containerId);
         cancellationToken.ThrowIfCancellationRequested();
     }
 

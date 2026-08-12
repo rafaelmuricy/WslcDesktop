@@ -5,16 +5,171 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    xmlns:models="using:WslcDesktop.Models"
+    mc:Ignorable="d"
+    Loaded="ContainersPage_Loaded">
 
-    <Grid Padding="24">
+    <Grid Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
         <StackPanel Spacing="8">
             <TextBlock
                 Style="{StaticResource TitleTextBlockStyle}"
                 Text="Containers" />
             <TextBlock
                 Style="{StaticResource BodyTextBlockStyle}"
-                Text="Lista de containers Docker." />
+                Text="List of WSLC containers." />
         </StackPanel>
+
+        <StackPanel
+            Grid.Row="1"
+            Orientation="Horizontal"
+            Spacing="8">
+            <Button
+                Width="40"
+                Height="36"
+                Click="RefreshButton_Click"
+                Style="{StaticResource AccentIconButtonStyle}"
+                ToolTipService.ToolTip="Refresh">
+                <FontIcon FontSize="16" Glyph="&#xE72C;" />
+            </Button>
+        </StackPanel>
+
+        <Grid Grid.Row="2">
+            <ProgressRing
+                x:Name="LoadingRing"
+                Width="40"
+                Height="40"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsActive="True" />
+
+            <TextBlock
+                x:Name="StatusText"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Style="{StaticResource BodyTextBlockStyle}"
+                TextWrapping="WrapWholeWords"
+                Visibility="Collapsed" />
+
+            <ListView
+                x:Name="ContainersList"
+                IsItemClickEnabled="False"
+                SelectionMode="None"
+                Visibility="Collapsed">
+                <ListView.Header>
+                    <Grid Padding="12,8" ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="1.5*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1.5*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="Auto" MinWidth="132" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock FontWeight="SemiBold" Text="CONTAINER ID" />
+                        <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="NAME" />
+                        <TextBlock Grid.Column="2" FontWeight="SemiBold" Text="IMAGE" />
+                        <TextBlock Grid.Column="3" FontWeight="SemiBold" Text="CREATED" />
+                        <TextBlock Grid.Column="4" FontWeight="SemiBold" Text="STATUS" />
+                        <TextBlock Grid.Column="5" FontWeight="SemiBold" Text="PORTS" />
+                        <TextBlock Grid.Column="6" FontWeight="SemiBold" Text="ACTIONS" />
+                    </Grid>
+                </ListView.Header>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ContainerInstance">
+                        <Grid Padding="0,2" ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="1.5*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1.5*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="Auto" MinWidth="132" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontFamily="Consolas"
+                                Text="{x:Bind ShortId}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind Name}"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                Grid.Column="2"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind Image}"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                Grid.Column="3"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind CreatedDisplay}"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                Grid.Column="4"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind StatusDisplay}"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                Grid.Column="5"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind PortsDisplay}"
+                                TextTrimming="CharacterEllipsis" />
+                            <StackPanel
+                                Grid.Column="6"
+                                Orientation="Horizontal"
+                                Spacing="4">
+                                <Button
+                                    Width="36"
+                                    Height="32"
+                                    Click="StartStopContainerButton_Click"
+                                    Style="{StaticResource AccentIconButtonStyle}"
+                                    Tag="{x:Bind ShortId}"
+                                    ToolTipService.ToolTip="{x:Bind StartStopTooltip}">
+                                    <FontIcon FontSize="14" Glyph="{x:Bind StartStopGlyph}" />
+                                </Button>
+                                <Button
+                                    Width="36"
+                                    Height="32"
+                                    Style="{StaticResource AccentIconButtonStyle}"
+                                    ToolTipService.ToolTip="Container actions">
+                                    <FontIcon
+                                        FontSize="14"
+                                        Glyph="&#xE712;"
+                                        RenderTransformOrigin="0.5,0.5">
+                                        <FontIcon.RenderTransform>
+                                            <RotateTransform Angle="90" />
+                                        </FontIcon.RenderTransform>
+                                    </FontIcon>
+                                </Button>
+                                <Button
+                                    Width="36"
+                                    Height="32"
+                                    Click="DeleteContainerButton_Click"
+                                    Style="{StaticResource AccentIconButtonStyle}"
+                                    Tag="{x:Bind ShortId}"
+                                    ToolTipService.ToolTip="Delete container">
+                                    <FontIcon FontSize="14" Glyph="&#xE74D;" />
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="12,0" />
+                        <Setter Property="MinHeight" Value="0" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+        </Grid>
     </Grid>
 </Page>
