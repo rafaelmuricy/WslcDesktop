@@ -25,10 +25,12 @@
         </TitleBar>
 
         <!--
-            The Frame hosts pages for your application content. Add your UI to
-            MainPage.xaml rather than here so you can use Page features such as
-            navigation events and the Loaded lifecycle.
+            DialogHost covers only the content area so the title bar stays
+            interactive (window can still be moved while a dialog is open).
         -->
-        <Frame x:Name="RootFrame" Grid.Row="1" />
+        <Grid Grid.Row="1">
+            <Frame x:Name="RootFrame" />
+            <Grid x:Name="DialogHost" Visibility="Collapsed" />
+        </Grid>
     </Grid>
 </Window>

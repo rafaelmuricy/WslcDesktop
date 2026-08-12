@@ -32,15 +32,16 @@
             <Button
                 Width="40"
                 Height="36"
-                Padding="0"
+                Click="AddImageButton_Click"
+                Style="{StaticResource AccentIconButtonStyle}"
                 ToolTipService.ToolTip="Load Dockerfile/Containerfile">
                 <FontIcon FontSize="16" Glyph="&#xE710;" />
             </Button>
             <Button
                 Width="40"
                 Height="36"
-                Padding="0"
                 Click="RefreshButton_Click"
+                Style="{StaticResource AccentIconButtonStyle}"
                 ToolTipService.ToolTip="Refresh">
                 <FontIcon FontSize="16" Glyph="&#xE72C;" />
             </Button>
@@ -78,7 +79,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" MinWidth="132" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock FontWeight="SemiBold" Text="REPOSITORY" />
+                        <TextBlock FontWeight="SemiBold" Text="NAME" />
                         <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="TAG" />
                         <TextBlock Grid.Column="2" FontWeight="SemiBold" Text="IMAGE ID" />
                         <TextBlock Grid.Column="3" FontWeight="SemiBold" Text="CREATED" />
@@ -99,7 +100,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock
                                 VerticalAlignment="Center"
-                                Text="{x:Bind Repository}"
+                                Text="{x:Bind Name}"
                                 TextTrimming="CharacterEllipsis" />
                             <TextBlock
                                 Grid.Column="1"
@@ -127,14 +128,16 @@
                                 <Button
                                     Width="36"
                                     Height="32"
-                                    Padding="0"
+                                    Click="RunImageButton_Click"
+                                    Style="{StaticResource AccentIconButtonStyle}"
+                                    Tag="{x:Bind FullName}"
                                     ToolTipService.ToolTip="Run">
                                     <FontIcon FontSize="14" Glyph="&#xE768;" />
                                 </Button>
                                 <Button
                                     Width="36"
                                     Height="32"
-                                    Padding="0"
+                                    Style="{StaticResource AccentIconButtonStyle}"
                                     ToolTipService.ToolTip="Image Actions">
                                     <FontIcon
                                         FontSize="14"
@@ -148,7 +151,9 @@
                                 <Button
                                     Width="36"
                                     Height="32"
-                                    Padding="0"
+                                    Click="DeleteImageButton_Click"
+                                    Style="{StaticResource AccentIconButtonStyle}"
+                                    Tag="{x:Bind ShortId}"
                                     ToolTipService.ToolTip="Delete Image">
                                     <FontIcon FontSize="14" Glyph="&#xE74D;" />
                                 </Button>

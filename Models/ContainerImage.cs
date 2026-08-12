@@ -5,7 +5,7 @@ namespace WslcDesktop.Models;
 public sealed class ContainerImage
 {
     [JsonPropertyName("Repository")]
-    public string Repository { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
     [JsonPropertyName("Tag")]
     public string Tag { get; set; } = string.Empty;
@@ -18,6 +18,24 @@ public sealed class ContainerImage
 
     [JsonPropertyName("Size")]
     public long Size { get; set; }
+
+    public string FullName
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(Name) || Name == "<none>")
+            {
+                return ShortId;
+            }
+
+            if (string.IsNullOrWhiteSpace(Tag) || Tag == "<none>")
+            {
+                return Name;
+            }
+
+            return $"{Name}:{Tag}";
+        }
+    }
 
     public string ShortId
     {

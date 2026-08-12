@@ -8,9 +8,39 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
-            <!-- Other app resources here -->
+
+            <Color x:Key="AppAccentColor">#7C3AED</Color>
+            <Color x:Key="AppAccentColorDark">#6D28D9</Color>
+            <Color x:Key="AppAccentColorLight">#8B5CF6</Color>
+            <SolidColorBrush x:Key="AppAccentBrush" Color="{StaticResource AppAccentColor}" />
+            <SolidColorBrush x:Key="AppDangerBrush" Color="#DC2626" />
+
+            <Color x:Key="SystemAccentColor">#7C3AED</Color>
+            <Color x:Key="SystemAccentColorLight1">#8B5CF6</Color>
+            <Color x:Key="SystemAccentColorLight2">#A78BFA</Color>
+            <Color x:Key="SystemAccentColorLight3">#C4B5FD</Color>
+            <Color x:Key="SystemAccentColorDark1">#6D28D9</Color>
+            <Color x:Key="SystemAccentColorDark2">#5B21B6</Color>
+            <Color x:Key="SystemAccentColorDark3">#4C1D95</Color>
+
+            <SolidColorBrush x:Key="AccentButtonBackground" Color="{StaticResource AppAccentColor}" />
+            <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver" Color="{StaticResource AppAccentColorLight}" />
+            <SolidColorBrush x:Key="AccentButtonBackgroundPressed" Color="{StaticResource AppAccentColorDark}" />
+            <SolidColorBrush x:Key="AccentButtonBackgroundDisabled" Color="#667C3AED" />
+            <SolidColorBrush x:Key="AccentButtonForeground" Color="White" />
+            <SolidColorBrush x:Key="AccentButtonForegroundPointerOver" Color="White" />
+            <SolidColorBrush x:Key="AccentButtonForegroundPressed" Color="White" />
+            <SolidColorBrush x:Key="AccentButtonForegroundDisabled" Color="#99FFFFFF" />
+            <SolidColorBrush x:Key="AccentButtonBorderBrush" Color="{StaticResource AppAccentColor}" />
+            <SolidColorBrush x:Key="AccentButtonBorderBrushPointerOver" Color="{StaticResource AppAccentColorLight}" />
+            <SolidColorBrush x:Key="AccentButtonBorderBrushPressed" Color="{StaticResource AppAccentColorDark}" />
+            <SolidColorBrush x:Key="AccentButtonBorderBrushDisabled" Color="#667C3AED" />
+
+            <Style x:Key="AccentIconButtonStyle" TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Foreground" Value="White" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

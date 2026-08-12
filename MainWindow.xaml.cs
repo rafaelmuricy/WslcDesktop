@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -24,4 +25,10 @@ public sealed partial class MainWindow : Window
         // Navigate the root frame to the main page on startup.
         RootFrame.Navigate(typeof(MainPage));
     }
+
+    /// <summary>
+    /// Overlay host for in-window dialogs. Covers only the content area so the
+    /// title bar remains usable while a dialog is open.
+    /// </summary>
+    public Grid DialogOverlay => DialogHost;
 }
